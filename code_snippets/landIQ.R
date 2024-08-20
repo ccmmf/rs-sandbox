@@ -5,6 +5,7 @@
 
 # Let's explore.
 
+# TODO: Same dataset is also available as a geodatabase -- would that be easier / more useful to work from?
 
 library(sf)
 library(tidyverse)
@@ -28,11 +29,27 @@ cropnames$subcl_str <- paste0(
 	cropnames$CLASS,
 	cropnames$SUBCLASS |> as.character() |> replace_na(""))
 
+# TODO: See lines 908 - end (1259) of i15_Crop_Mapping_2021.shp.xml to identify
+#	useful info that could be extracted from other columns.
+# Likely targets include
+# 	- YR_PLANTED
+#	- peak NDVI dates (ADOY*) (!Can be negative if this crop peaked in 2020!)
+#	- SEN_CROP, EMRG_CROP: for multiyear crops that peaked before or after 2021
+#	- percent of field cropped (PCNT*)
+#	- special conditions (SPECOND*):
+#		Documented to include potentially useful states like "cover crop",
+#		"abandoned", "tilled land".
+#		Quick inspection shows 2021 data use it almost exclusively for young
+#		orchards (< 3 years old)
+#	- Irrigation status (IRR_TYP1PA) and infrastructure type (IRR_TYP1PB)
+#		In 2021 data status seems barely used and type is never used --
+#		maybe these will be added to in future years?
+
 crops_named <- crops |>
 	left_join(cropnames, by = c("MAIN_CROP" = "subcl_str"))
 
 
-# random example: grain and citrus in SB Co
+# random map plotting example: grain and citrus in SB Co
 # crops_named |>
 # 	filter(COUNTY == "Santa Barbara", CLASS2 %in% c("G","C")) |>
 # 	ggplot() +
